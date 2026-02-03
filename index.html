@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IMPOSTER ELITE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --accent: #06b6d4;
+            --danger: #ef4444;
+            --bg: #050505;
+            --card-bg: rgba(20, 20, 25, 0.8);
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background: var(--bg); color: white; 
+            font-family: 'Outfit', sans-serif; overflow: hidden;
+        }
+
+        /* Animated Background Mesh */
+        .bg-mesh {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #050505 100%);
+            z-index: -1;
+        }
+
+        /* Typography & Layout */
+        .screen {
+            position: absolute; inset: 0; padding: 2rem;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; transition: 0.5s all cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .screen.active { display: flex; opacity: 1; }
+
+        .glitch-title {
+            font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 2.5rem;
+            text-transform: uppercase; letter-spacing: 5px; text-shadow: 2px 2px var(--danger), -2px -2px var(--accent);
+            margin-bottom: 0.5rem; text-align: center;
+        }
+
+        /* Form Elements */
+        .input-group {
+            width: 100%; max-width: 400px; background: var(--glass);
+            padding: 1.5rem; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 1rem; backdrop-filter: blur(10px);
+        }
+
+        .name-input-list {
+            max-height: 30vh; overflow-y: auto; width: 100%;
+            margin: 1rem 0; padding-right: 5px;
+        }
+
+        input[type="text"] {
+            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--primary);
+            padding: 12px 16px; border-radius: 12px; color: white; margin-bottom: 8px;
+            font-family: 'Outfit'; font-size: 1rem; outline: none;
+        }
+
+        /* Modern Buttons */
+        .btn-main {
+            background: linear-gradient(135deg, var(--primary), #6d28d9);
+            color: white; border: none; padding: 1.2rem 2.5rem; border-radius: 50px;
+            font-family: 'Orbitron'; font-weight: 700; cursor: pointer;
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3); width: 100%; max-width: 300px;
+            transition: 0.3s; margin-top: 10px;
+        }
+        .btn-main:active { transform: scale(0.96); }
+
+        /* Card Reveal Mechanic */
+        .card-box {
+            perspective: 1000px; width: 300px; height: 420px; margin: 2rem 0;
+        }
+        .card-inner {
+            position: relative; width: 100%; height: 100%;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d; cursor: pointer;
+        }
+        .card-inner.flipped { transform: rotateY(180deg); }
+
+        .card-face {
+            position: absolute; inset: 0; backface-visibility: hidden;
+            border-radius: 30px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .card-front { background: linear-gradient(45deg, #111, #222); }
+        .card-back { 
+            background: linear-gradient(135deg, #1e1b4b, #312e81); 
+            transform: rotateY(180deg); padding: 2rem; text-align: center;
+        }
+        .imposter-red { background: linear-gradient(135deg, #450a0a, #991b1b) !important; }
+
+        /* Reveal Screen Names */
+        .reveal-name { font-family: 'Orbitron'; font-size: 2rem; color: var(--danger); }
+        .reveal-word { font-size: 1.2rem; color: var(--accent); margin-top: 10px; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="bg-mesh"></div>
+
+<div id="game-container">
+    
+    <div id="sc-home" class="screen active">
+        <h1 class="glitch-title">IMPOSTER<br>ELITE</h1>
+        <p style="color: var(--accent); letter-spacing: 2px; font-weight: 600;">MULTIPLAYER BLUFFING</p>
+        <div style="margin-top: 3rem; width: 100%; display: flex; flex-direction: column; align-items: center;">
+            <button class="btn-main" onclick="nav('sc-players')">ENTER LOBBY</button>
+        </div>
+    </div>
+
+    <div id="sc-players" class="screen">
+        <h2 class="glitch-title" style="font-size: 1.5rem;">WHO'S PLAYING?</h2>
+        <div class="input-group">
+            <div id="name-container" class="name-input-list">
+                <input type="text" placeholder="Player 1 Name" class="p-name">
+                <input type="text" placeholder="Player 2 Name" class="p-name">
+                <input type="text" placeholder="Player 3 Name" class="p-name">
+            </div>
+            <button onclick="addNameSlot()" style="background: none; border: 1px dashed var(--accent); color: var(--accent); width: 100%; padding: 8px; border-radius: 10px; cursor: pointer;">+ ADD PLAYER</button>
+        </div>
+        <button class="btn-main" onclick="startGame()">START ROUND</button>
+    </div>
+
+    <div id="sc-pass" class="screen">
+        <h3 id="current-player-prompt" style="font-family: 'Orbitron'; color: var(--accent);">PREPARE...</h3>
+        <h1 id="current-player-name" class="glitch-title">PLAYER NAME</h1>
+        
+        <div class="card-box" onclick="flipCard()">
+            <div id="the-card" class="card-inner">
+                <div class="card-face card-front">
+                    <span style="font-size: 5rem;">?</span>
+                    <p style="opacity: 0.6;">TAP TO VIEW IDENTITY</p>
+                </div>
+                <div id="the-card-back" class="card-face card-back">
+                    <p id="role-type" style="letter-spacing: 3px; font-weight: 800;"></p>
+                    <h2 id="secret-word" style="font-family: 'Orbitron'; font-size: 2.2rem; margin: 10px 0;"></h2>
+                    <p style="font-size: 0.8rem; opacity: 0.8;">Memorize and tap 'DONE' to pass phone</p>
+                </div>
+            </div>
+        </div>
+        
+        <button id="btn-done" class="btn-main" style="display: none;" onclick="nextPlayer()">DONE</button>
+    </div>
+
+    <div id="sc-hunt" class="screen">
+        <h1 class="glitch-title">THE HUNT</h1>
+        <p id="hunt-info" style="text-align: center; color: var(--accent);"></p>
+        <div class="input-group" style="text-align: center;">
+            <p>Discuss the clues. Once you think you've found them...</p>
+            <button class="btn-main" onclick="nav('sc-reveal')" style="background: var(--danger);">EXPOSE IMPOSTER</button>
+        </div>
+    </div>
+
+    <div id="sc-reveal" class="screen">
+        <h1 class="glitch-title">REVEALED</h1>
+        <div class="input-group" style="text-align: center; border-color: var(--danger);">
+            <p style="color: var(--accent);">The Imposter was...</p>
+            <h2 id="final-imposter-name" class="reveal-name">NAME</h2>
+            <div class="reveal-word">The word was: <b id="final-word" style="color: white;">WORD</b></div>
+        </div>
+        <button class="btn-main" onclick="nav('sc-home')">PLAY AGAIN</button>
+    </div>
+
+</div>
+
+<script>
+    const DATA = {
+        "Sci-Fi": ["Alien", "Spaceship", "Mars", "Robot", "Laser", "Time Travel", "Galaxy"],
+        "Fast Food": ["Nuggets", "Milkshake", "French Fries", "Ketchup", "Hotdog", "Soda"],
+        "Superheroes": ["Batman", "Spiderman", "Iron Man", "Wonder Woman", "Hulk", "Thor"],
+        "Body Parts": ["Eyebrow", "Pancreas", "Elbow", "Tongue", "Heart", "Skeleton"],
+        "Nature": ["Volcano", "Waterfall", "Tsunami", "Cactus", "Cloud", "Lightning"]
+    };
+
+    let players = [];
+    let currentPlayerIdx = 0;
+    let imposterIndex = 0;
+    let activeWord = "";
+    let activeCategory = "";
+
+    function addNameSlot() {
+        const container = document.getElementById('name-container');
+        const count = container.querySelectorAll('input').length + 1;
+        const input = document.createElement('input');
+        input.type = "text";
+        input.placeholder = `Player ${count} Name`;
+        input.className = "p-name";
+        container.appendChild(input);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function startGame() {
+        const inputs = document.querySelectorAll('.p-name');
+        players = Array.from(inputs).map(i => i.value || i.placeholder).filter(v => v.trim() !== "");
+        
+        if (players.length < 3) {
+            alert("Need at least 3 players to hunt an imposter!");
+            return;
+        }
+
+        // Randomly pick category and word
+        const cats = Object.keys(DATA);
+        activeCategory = cats[Math.floor(Math.random() * cats.length)];
+        const words = DATA[activeCategory];
+        activeWord = words[Math.floor(Math.random() * words.length)];
+        
+        // Randomly pick imposter
+        imposterIndex = Math.floor(Math.random() * players.length);
+        currentPlayerIdx = 0;
+
+        setupTurn();
+        nav('sc-pass');
+    }
+
+    function setupTurn() {
+        document.getElementById('the-card').classList.remove('flipped');
+        document.getElementById('btn-done').style.display = 'none';
+        document.getElementById('current-player-name').innerText = players[currentPlayerIdx];
+        
+        const isImposter = (currentPlayerIdx === imposterIndex);
+        const backFace = document.getElementById('the-card-back');
+        const roleLabel = document.getElementById('role-type');
+        const wordLabel = document.getElementById('secret-word');
+
+        if (isImposter) {
+            backFace.classList.add('imposter-red');
+            roleLabel.innerText = "YOU ARE THE";
+            wordLabel.innerText = "IMPOSTER";
+        } else {
+            backFace.classList.remove('imposter-red');
+            roleLabel.innerText = "THE WORD IS";
+            wordLabel.innerText = activeWord;
+        }
+    }
+
+    function flipCard() {
+        const card = document.getElementById('the-card');
+        if(!card.classList.contains('flipped')) {
+            card.classList.add('flipped');
+            setTimeout(() => {
+                document.getElementById('btn-done').style.display = 'block';
+            }, 500);
+        }
+    }
+
+    function nextPlayer() {
+        currentPlayerIdx++;
+        if (currentPlayerIdx < players.length) {
+            // Reset card state BEFORE setting up new turn
+            document.getElementById('the-card').classList.remove('flipped');
+            document.getElementById('btn-done').style.display = 'none';
+            // Small delay to ensure card flips back before updating content
+            setTimeout(() => {
+                setupTurn();
+            }, 100);
+        } else {
+            document.getElementById('hunt-info').innerText = `Category: ${activeCategory}\nPlayers, give your clues!`;
+            nav('sc-hunt');
+            prepareReveal();
+        }
+    }
+
+    function prepareReveal() {
+        document.getElementById('final-imposter-name').innerText = players[imposterIndex];
+        document.getElementById('final-word').innerText = activeWord.toUpperCase();
+    }
+
+    function nav(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+</script>
+
+</body>
+</html>
