@@ -141,6 +141,7 @@
                     <p style="opacity: 0.6;">TAP TO VIEW IDENTITY</p>
                 </div>
                 <div id="the-card-back" class="card-face card-back">
+                    <p id="card-category" style="color: var(--accent); font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 10px;">CATEGORY</p>
                     <p id="role-type" style="letter-spacing: 3px; font-weight: 800;"></p>
                     <h2 id="secret-word" style="font-family: 'Orbitron'; font-size: 2.2rem; margin: 10px 0;"></h2>
                     <p style="font-size: 0.8rem; opacity: 0.8;">Memorize and tap 'DONE' to pass phone</p>
@@ -174,50 +175,12 @@
 
 <script>
     const DATA = {
-    "Sci-Fi": [
-        "Alien", "Spaceship", "Mars", "Robot", "Laser", "Time Travel", "Galaxy",
-        "Wormhole", "Android", "Teleportation", "Asteroid", "Cybernetics"
-    ],
-    "Fast Food": [
-        "Nuggets", "Milkshake", "French Fries", "Ketchup", "Hotdog", "Soda",
-        "Burger", "Cheeseburger", "Onion Rings", "Wrap", "Drive-Thru", "Mayonnaise"
-    ],
-    "Superheroes": [
-        "Batman", "Spiderman", "Iron Man", "Wonder Woman", "Hulk", "Thor",
-        "Flash", "Aquaman", "Black Panther", "Deadpool", "Wolverine", "Doctor Strange"
-    ],
-    "Body Parts": [
-        "Eyebrow", "Elbow", "Tongue", "Heart", "Skeleton",
-        "Liver", "Kidney", "Shoulder", "Ankle", "Spine", "Retina"
-    ],
-    "Nature": [
-        "Volcano", "Waterfall", "Tsunami", "Cactus", "Cloud", "Lightning",
-        "Glacier", "Hurricane", "Earthquake", "Rainforest", "Coral", "Avalanche"
-    ],
-    "Sports": [
-        "Football", "Basketball", "Cricket", "Gymnastics", "Swimming", "Tennis",
-        "Athletics", "Cycling", "Boxing", "Wrestling", "Skateboarding", "Archery"
-    ],
-    "Music": [
-        "Violin", "Piano", "Guitar", "Drums", "Orchestra", "Symphony",
-        "Melody", "Harmony", "Rhythm", "Concerto", "Tempo"
-    ],
-    "Space": [
-        "Planet", "Star", "Comet", "Black Hole", "Orbit",
-        "Satellite", "Constellation", "Supernova", "Gravity"
-    ],
-    "Food & Cooking": [
-        "Pasta", "Lasagna", "Curry", "Sushi", "Pizza", "Spices", "Herbs", "Baking", "Roasting"
-    ],
-    "Emotions": [
-        "Happiness", "Sadness", "Anger", "Fear", "Excitement", "Anxiety",
-        "Confidence", "Gratitude", "Curiosity", "Pride", "Motivation"
-    ],
-    "Geography": [
-        "Mountain", "River", "Dessert", "Island", "Valley", "Canyon", "Coastline", "Border", "Continent"
-    ]
-};
-
+        "Sci-Fi": ["Alien", "Spaceship", "Mars", "Robot", "Laser", "Time Travel", "Galaxy"],
+        "Fast Food": ["Nuggets", "Milkshake", "French Fries", "Ketchup", "Hotdog", "Soda"],
+        "Superheroes": ["Batman", "Spiderman", "Iron Man", "Wonder Woman", "Hulk", "Thor"],
+        "Body Parts": ["Eyebrow", "Pancreas", "Elbow", "Tongue", "Heart", "Skeleton"],
+        "Nature": ["Volcano", "Waterfall", "Tsunami", "Cactus", "Cloud", "Lightning"]
+    };
 
     let players = [];
     let currentPlayerIdx = 0;
@@ -268,6 +231,10 @@
         const backFace = document.getElementById('the-card-back');
         const roleLabel = document.getElementById('role-type');
         const wordLabel = document.getElementById('secret-word');
+        const categoryLabel = document.getElementById('card-category');
+
+        // Always show category
+        categoryLabel.innerText = `Category: ${activeCategory}`;
 
         if (isImposter) {
             backFace.classList.add('imposter-red');
