@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Imposter Elite">
     <title>IMPOSTER ELITE</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
     <style>
@@ -10,6 +13,7 @@
             --primary: #8b5cf6;
             --accent: #06b6d4;
             --danger: #ef4444;
+            --success: #10b981;
             --bg: #050505;
             --card-bg: rgba(20, 20, 25, 0.8);
             --glass: rgba(255, 255, 255, 0.05);
@@ -29,11 +33,23 @@
             z-index: -1;
         }
 
+        /* Home Button on every screen */
+        .home-btn {
+            position: fixed; top: 1rem; left: 1rem; z-index: 100;
+            background: var(--glass); border: 1px solid var(--primary);
+            border-radius: 12px; padding: 0.6rem 1.2rem;
+            font-family: 'Orbitron'; font-size: 0.8rem; cursor: pointer;
+            backdrop-filter: blur(10px); color: var(--accent);
+            transition: 0.3s;
+        }
+        .home-btn:active { transform: scale(0.95); }
+
         /* Typography & Layout */
         .screen {
             position: absolute; inset: 0; padding: 2rem;
             display: none; flex-direction: column; align-items: center; justify-content: center;
             opacity: 0; transition: 0.5s all cubic-bezier(0.23, 1, 0.32, 1);
+            overflow-y: auto;
         }
         .screen.active { display: flex; opacity: 1; }
 
@@ -55,7 +71,7 @@
             margin: 1rem 0; padding-right: 5px;
         }
 
-        input[type="text"] {
+        input[type="text"], input[type="number"] {
             width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--primary);
             padding: 12px 16px; border-radius: 12px; color: white; margin-bottom: 8px;
             font-family: 'Outfit'; font-size: 1rem; outline: none;
@@ -70,6 +86,14 @@
             transition: 0.3s; margin-top: 10px;
         }
         .btn-main:active { transform: scale(0.96); }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1); border: 1px solid var(--accent);
+            color: var(--accent); padding: 0.8rem 1.5rem; border-radius: 50px;
+            font-family: 'Orbitron'; cursor: pointer; margin: 5px;
+            transition: 0.3s;
+        }
+        .btn-secondary:active { transform: scale(0.96); }
 
         /* Card Reveal Mechanic */
         .card-box {
@@ -95,9 +119,162 @@
         }
         .imposter-red { background: linear-gradient(135deg, #450a0a, #991b1b) !important; }
 
-        /* Reveal Screen Names */
-        .reveal-name { font-family: 'Orbitron'; font-size: 2rem; color: var(--danger); }
-        .reveal-word { font-size: 1.2rem; color: var(--accent); margin-top: 10px; }
+        /* Stats & Scoreboard */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr);
+            gap: 1rem; width: 100%; max-width: 400px; margin: 1rem 0;
+        }
+
+        .stat-card {
+            background: var(--glass); padding: 1rem; border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1); text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron'; font-size: 2rem; color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.8rem; opacity: 0.7; margin-top: 0.5rem;
+        }
+
+        /* Difficulty Selector */
+        .difficulty-select {
+            display: flex; gap: 1rem; margin: 1rem 0; flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .difficulty-btn {
+            padding: 1rem 2rem; border-radius: 16px; border: 2px solid;
+            cursor: pointer; transition: 0.3s; font-family: 'Orbitron';
+            background: rgba(0,0,0,0.3);
+        }
+
+        .difficulty-btn.easy { border-color: var(--success); color: var(--success); }
+        .difficulty-btn.medium { border-color: var(--accent); color: var(--accent); }
+        .difficulty-btn.hard { border-color: var(--danger); color: var(--danger); }
+        .difficulty-btn.selected { transform: scale(1.1); box-shadow: 0 0 20px currentColor; }
+
+        /* Settings Panel */
+        .settings-panel {
+            width: 100%; max-width: 400px; margin: 1rem 0;
+        }
+
+        .setting-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem; background: var(--glass); border-radius: 12px;
+            margin: 0.5rem 0; border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .toggle-switch {
+            width: 50px; height: 26px; background: rgba(255,255,255,0.2);
+            border-radius: 13px; position: relative; cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .toggle-switch.active { background: var(--primary); }
+
+        .toggle-switch::after {
+            content: ''; width: 20px; height: 20px; background: white;
+            border-radius: 50%; position: absolute; top: 3px; left: 3px;
+            transition: 0.3s;
+        }
+
+        .toggle-switch.active::after { left: 27px; }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed; top: 1rem; right: 1rem; z-index: 100;
+            background: var(--glass); border: 1px solid var(--primary);
+            border-radius: 50%; width: 50px; height: 50px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; backdrop-filter: blur(10px);
+        }
+
+        /* Hints System */
+        .hint-box {
+            background: rgba(6, 182, 212, 0.1); border: 1px solid var(--accent);
+            padding: 1rem; border-radius: 12px; margin: 1rem 0;
+            max-width: 400px; width: 100%;
+        }
+
+        /* Voting Grid */
+        .voting-container {
+            width: 100%; max-width: 500px; margin: 1rem 0;
+        }
+
+        .voting-step {
+            display: none;
+        }
+
+        .voting-step.active {
+            display: block;
+        }
+
+        .player-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem; margin: 1rem 0;
+        }
+
+        .player-vote-btn {
+            background: var(--glass); padding: 1.2rem; border-radius: 16px;
+            border: 2px solid var(--primary); cursor: pointer;
+            transition: 0.3s; font-family: 'Orbitron'; text-align: center;
+            font-size: 1rem;
+        }
+
+        .player-vote-btn:active { transform: scale(0.95); }
+        .player-vote-btn.selected { 
+            border-color: var(--accent); 
+            background: rgba(6, 182, 212, 0.2);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+        }
+        .player-vote-btn.suspect { 
+            border-color: var(--danger); 
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .player-vote-btn.voted {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        /* Big Reveal Animation */
+        .reveal-animation {
+            text-align: center; margin: 2rem 0;
+        }
+
+        .reveal-card {
+            background: var(--glass); padding: 2rem; border-radius: 24px;
+            border: 2px solid rgba(255,255,255,0.1); margin: 1rem 0;
+            min-height: 150px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+
+        .reveal-card.imposter {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+            animation: revealPulse 2s ease-in-out;
+        }
+
+        .reveal-card.innocent {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        @keyframes revealPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); box-shadow: 0 0 30px var(--danger); }
+        }
+
+        .reveal-name {
+            font-family: 'Orbitron'; font-size: 2.5rem; margin: 1rem 0;
+        }
+
+        .reveal-label {
+            font-size: 1rem; opacity: 0.8; margin-bottom: 0.5rem;
+        }
 
         /* Scrollbar */
         ::-webkit-scrollbar { width: 4px; }
@@ -108,16 +285,114 @@
 
 <div class="bg-mesh"></div>
 
+<!-- Sound Toggle -->
+<div class="sound-toggle" onclick="toggleSound()" id="sound-btn">
+    <span id="sound-icon">🔊</span>
+</div>
+
 <div id="game-container">
     
+    <!-- Home Screen -->
     <div id="sc-home" class="screen active">
         <h1 class="glitch-title">IMPOSTER<br>ELITE</h1>
-        <div style="margin-top: 3rem; width: 100%; display: flex; flex-direction: column; align-items: center;">
+        
+        <!-- Game Stats Display -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="games-played">0</div>
+                <div class="stat-label">GAMES PLAYED</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="imposters-caught">0</div>
+                <div class="stat-label">IMPOSTERS CAUGHT</div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 2rem; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+            <button class="btn-main" onclick="nav('sc-settings')">GAME SETTINGS</button>
             <button class="btn-main" onclick="nav('sc-players')">ENTER LOBBY</button>
+            <button class="btn-secondary" onclick="nav('sc-rules')">HOW TO PLAY</button>
         </div>
     </div>
 
+    <!-- Game Settings Screen -->
+    <div id="sc-settings" class="screen">
+        <button class="home-btn" onclick="goHome()">🏠 HOME</button>
+        
+        <h2 class="glitch-title" style="font-size: 1.5rem;">GAME SETTINGS</h2>
+        
+        <div class="settings-panel">
+            <!-- Difficulty Selection -->
+            <div class="input-group">
+                <p style="text-align: center; color: var(--accent); margin-bottom: 1rem;">DIFFICULTY</p>
+                <div class="difficulty-select">
+                    <div class="difficulty-btn easy" onclick="setDifficulty('easy')">EASY</div>
+                    <div class="difficulty-btn medium selected" onclick="setDifficulty('medium')">MEDIUM</div>
+                    <div class="difficulty-btn hard" onclick="setDifficulty('hard')">HARD</div>
+                </div>
+                <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 1rem;" id="difficulty-desc">
+                    Medium: Standard gameplay with category hints
+                </p>
+            </div>
+
+            <!-- Multiple Imposters -->
+            <div class="setting-row">
+                <span>Number of Imposters</span>
+                <input type="number" min="1" max="3" value="1" id="imposter-count" 
+                       style="width: 60px; text-align: center; margin: 0;">
+            </div>
+
+            <!-- Sound Effects -->
+            <div class="setting-row">
+                <span>Sound Effects</span>
+                <div class="toggle-switch active" onclick="toggleSoundSetting(this)" id="sound-setting"></div>
+            </div>
+
+            <!-- Hints System -->
+            <div class="setting-row">
+                <span>Enable Hints</span>
+                <div class="toggle-switch active" onclick="toggleHints(this)" id="hints-setting"></div>
+            </div>
+        </div>
+
+        <button class="btn-main" onclick="nav('sc-home')">BACK TO MENU</button>
+    </div>
+
+    <!-- Rules/Tutorial Screen -->
+    <div id="sc-rules" class="screen">
+        <button class="home-btn" onclick="goHome()">🏠 HOME</button>
+        
+        <h2 class="glitch-title" style="font-size: 1.5rem;">HOW TO PLAY</h2>
+        <div class="input-group" style="text-align: left; max-height: 60vh; overflow-y: auto;">
+            <h3 style="color: var(--accent);">🎯 OBJECTIVE</h3>
+            <p>Find the imposter(s) before they win!</p>
+            
+            <h3 style="color: var(--accent); margin-top: 1rem;">📱 SETUP</h3>
+            <p>1. Each player views their card privately<br>
+            2. Most players get the SECRET WORD<br>
+            3. The imposter(s) only see the category</p>
+            
+            <h3 style="color: var(--accent); margin-top: 1rem;">💬 GAMEPLAY</h3>
+            <p>• Take turns giving clues about your word<br>
+            • Imposters must bluff convincingly<br>
+            • Discuss and vote on who's suspicious</p>
+            
+            <h3 style="color: var(--accent); margin-top: 1rem;">🗳️ VOTING</h3>
+            <p>• First, select YOUR name<br>
+            • Then, vote for who you think is the imposter<br>
+            • All votes are collected anonymously</p>
+            
+            <h3 style="color: var(--accent); margin-top: 1rem;">🏆 WINNING</h3>
+            <p>• Crew wins by identifying all imposters<br>
+            • Imposters win if they avoid detection</p>
+        </div>
+        <button class="btn-main" onclick="nav('sc-home')">GOT IT!</button>
+    </div>
+
+    <!-- Player Setup Screen -->
     <div id="sc-players" class="screen">
+        <button class="home-btn" onclick="goHome()">🏠 HOME</button>
+        
         <h2 class="glitch-title" style="font-size: 1.5rem;">WHO'S PLAYING?</h2>
         <div class="input-group">
             <div id="name-container" class="name-input-list">
@@ -127,10 +402,14 @@
             </div>
             <button onclick="addNameSlot()" style="background: none; border: 1px dashed var(--accent); color: var(--accent); width: 100%; padding: 8px; border-radius: 10px; cursor: pointer;">+ ADD PLAYER</button>
         </div>
+
         <button class="btn-main" onclick="startGame()">START ROUND</button>
     </div>
 
+    <!-- Card Reveal Screen -->
     <div id="sc-pass" class="screen">
+        <button class="home-btn" onclick="goHome()">🏠 HOME</button>
+        
         <h3 id="current-player-prompt" style="font-family: 'Orbitron'; color: var(--accent);">PREPARE...</h3>
         <h1 id="current-player-name" class="glitch-title">PLAYER NAME</h1>
         
@@ -152,23 +431,98 @@
         <button id="btn-done" class="btn-main" style="display: none;" onclick="nextPlayer()">DONE</button>
     </div>
 
+    <!-- Hunt/Discussion Screen -->
     <div id="sc-hunt" class="screen">
+        <button class="home-btn" onclick="goHome()">🏠 HOME</button>
+        
         <h1 class="glitch-title">THE HUNT</h1>
-        <p id="hunt-info" style="text-align: center; color: var(--accent);"></p>
-        <div class="input-group" style="text-align: center;">
-            <p>Discuss the clues. Once you think you've found them...</p>
-            <button class="btn-main" onclick="nav('sc-reveal')" style="background: var(--danger);">EXPOSE IMPOSTER</button>
+        
+        <p id="hunt-info" style="text-align: center; color: var(--accent); font-size: 1.1rem;"></p>
+
+        <!-- Hints Display -->
+        <div class="hint-box" id="hint-box" style="display: none;">
+            <p style="color: var(--accent); font-weight: 600; margin-bottom: 0.5rem;">💡 HINT</p>
+            <p id="hint-text" style="font-size: 0.9rem;"></p>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button class="btn-secondary" onclick="getHint()">GET HINT</button>
+            <button class="btn-main" onclick="nav('sc-vote')" style="background: var(--danger);">VOTE NOW</button>
         </div>
     </div>
 
-    <div id="sc-reveal" class="screen">
-        <h1 class="glitch-title">REVEALED</h1>
-        <div class="input-group" style="text-align: center; border-color: var(--danger);">
-            <p style="color: var(--accent);">The Imposter was...</p>
-            <h2 id="final-imposter-name" class="reveal-name">NAME</h2>
-            <div class="reveal-word">The word was: <b id="final-word" style="color: white;">WORD</b></div>
+    <!-- Voting Screen -->
+    <div id="sc-vote" class="screen">
+        <button class="home-btn" onclick="goHome()">🏠 HOME</button>
+        
+        <h1 class="glitch-title">VOTING TIME</h1>
+        
+        <div class="voting-container">
+            <!-- Step 1: Select Your Name -->
+            <div id="vote-step-1" class="voting-step active">
+                <p style="text-align: center; color: var(--accent); margin-bottom: 1rem; font-size: 1.1rem;">
+                    Step 1: Who are you?
+                </p>
+                <div id="voter-grid" class="player-grid"></div>
+            </div>
+
+            <!-- Step 2: Vote for Suspect -->
+            <div id="vote-step-2" class="voting-step">
+                <p style="text-align: center; color: var(--accent); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                    Step 2: Who is the imposter?
+                </p>
+                <p id="voter-name-display" style="text-align: center; color: white; margin-bottom: 1rem; font-size: 0.9rem;">
+                    Voting as: <span style="color: var(--accent);"></span>
+                </p>
+                <div id="suspect-grid" class="player-grid"></div>
+                <button class="btn-main" onclick="submitVote()" style="margin-top: 1rem;">SUBMIT VOTE</button>
+            </div>
+
+            <!-- Vote Confirmation -->
+            <div id="vote-step-3" class="voting-step">
+                <div style="text-align: center;">
+                    <p style="color: var(--success); font-size: 1.5rem; margin: 2rem 0;">✓ Vote Recorded</p>
+                    <p style="color: var(--accent);">Pass the phone to the next player</p>
+                    <button class="btn-main" onclick="nextVoter()" style="margin-top: 2rem;">NEXT VOTER</button>
+                </div>
+            </div>
         </div>
-        <button class="btn-main" onclick="nav('sc-home')">PLAY AGAIN</button>
+
+        <p style="text-align: center; margin-top: 2rem; font-size: 0.8rem; opacity: 0.6;">
+            Votes: <span id="vote-count">0</span> / <span id="total-voters">0</span>
+        </p>
+    </div>
+
+    <!-- Big Reveal Screen -->
+    <div id="sc-reveal" class="screen">
+        <button class="home-btn" onclick="goHome()">🏠 HOME</button>
+        
+        <h1 class="glitch-title">THE REVEAL</h1>
+        
+        <div class="voting-container" style="max-width: 600px;">
+            <div class="input-group" style="text-align: center;">
+                <p style="color: var(--accent); margin-bottom: 1rem;">The secret word was:</p>
+                <h2 id="final-word" style="font-family: 'Orbitron'; font-size: 2rem; color: white; margin: 0.5rem 0;"></h2>
+            </div>
+
+            <div class="reveal-animation" id="reveal-animation">
+                <!-- Reveals will be inserted here -->
+            </div>
+
+            <!-- Game Stats -->
+            <div class="stats-grid" style="margin-top: 2rem;">
+                <div class="stat-card">
+                    <div class="stat-value" id="round-result">✓</div>
+                    <div class="stat-label">RESULT</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="vote-accuracy">0%</div>
+                    <div class="stat-label">ACCURACY</div>
+                </div>
+            </div>
+        </div>
+        
+        <button class="btn-main" onclick="nav('sc-players')" style="margin-top: 2rem;">NEW ROUND</button>
     </div>
 
 </div>
@@ -184,9 +538,118 @@
 
     let players = [];
     let currentPlayerIdx = 0;
-    let imposterIndex = 0;
+    let imposterIndexes = [];
     let activeWord = "";
     let activeCategory = "";
+    let votes = [];
+    let currentVoter = null;
+    let currentVoterIdx = 0;
+    let selectedSuspect = null;
+    let hintsUsed = 0;
+    let votedPlayers = []; // Track who has already voted
+    
+    // Game settings
+    let settings = {
+        difficulty: 'medium',
+        imposterCount: 1,
+        soundEnabled: true,
+        hintsEnabled: true
+    };
+
+    // Stats tracking
+    let stats = {
+        gamesPlayed: 0,
+        impostersCaught: 0
+    };
+
+    // Load stats from localStorage
+    function loadStats() {
+        const saved = localStorage.getItem('imposterEliteStats');
+        if (saved) {
+            stats = JSON.parse(saved);
+            updateStatsDisplay();
+        }
+    }
+
+    function saveStats() {
+        localStorage.setItem('imposterEliteStats', JSON.stringify(stats));
+        updateStatsDisplay();
+    }
+
+    function updateStatsDisplay() {
+        document.getElementById('games-played').innerText = stats.gamesPlayed;
+        document.getElementById('imposters-caught').innerText = stats.impostersCaught;
+    }
+
+    // Sound effects
+    function playSound(type) {
+        if (!settings.soundEnabled) return;
+        
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        switch(type) {
+            case 'flip':
+                oscillator.frequency.value = 400;
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+                break;
+            case 'success':
+                oscillator.frequency.value = 600;
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+                break;
+            case 'alert':
+                oscillator.frequency.value = 800;
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.2);
+                break;
+        }
+    }
+
+    function toggleSound() {
+        settings.soundEnabled = !settings.soundEnabled;
+        document.getElementById('sound-icon').innerText = settings.soundEnabled ? '🔊' : '🔇';
+        const toggle = document.getElementById('sound-setting');
+        if (toggle) {
+            toggle.classList.toggle('active', settings.soundEnabled);
+        }
+    }
+
+    function toggleSoundSetting(element) {
+        settings.soundEnabled = !settings.soundEnabled;
+        element.classList.toggle('active');
+        document.getElementById('sound-icon').innerText = settings.soundEnabled ? '🔊' : '🔇';
+    }
+
+    function toggleHints(element) {
+        settings.hintsEnabled = !settings.hintsEnabled;
+        element.classList.toggle('active');
+    }
+
+    function setDifficulty(level) {
+        settings.difficulty = level;
+        document.querySelectorAll('.difficulty-btn').forEach(btn => btn.classList.remove('selected'));
+        event.target.classList.add('selected');
+        
+        const descriptions = {
+            easy: 'Easy: Category visible, 3 hints available',
+            medium: 'Medium: Standard gameplay with category hints',
+            hard: 'Hard: No category shown, no hints'
+        };
+        
+        document.getElementById('difficulty-desc').innerText = descriptions[level];
+    }
 
     function addNameSlot() {
         const container = document.getElementById('name-container');
@@ -203,8 +666,15 @@
         const inputs = document.querySelectorAll('.p-name');
         players = Array.from(inputs).map(i => i.value || i.placeholder).filter(v => v.trim() !== "");
         
+        settings.imposterCount = parseInt(document.getElementById('imposter-count').value);
+        
         if (players.length < 3) {
             alert("Need at least 3 players to hunt an imposter!");
+            return;
+        }
+
+        if (settings.imposterCount >= players.length) {
+            alert("Too many imposters for the number of players!");
             return;
         }
 
@@ -214,9 +684,18 @@
         const words = DATA[activeCategory];
         activeWord = words[Math.floor(Math.random() * words.length)];
         
-        // Randomly pick imposter
-        imposterIndex = Math.floor(Math.random() * players.length);
+        // Randomly pick imposter(s)
+        imposterIndexes = [];
+        const availableIndexes = [...Array(players.length).keys()];
+        for (let i = 0; i < settings.imposterCount; i++) {
+            const randomIdx = Math.floor(Math.random() * availableIndexes.length);
+            imposterIndexes.push(availableIndexes[randomIdx]);
+            availableIndexes.splice(randomIdx, 1);
+        }
+        
         currentPlayerIdx = 0;
+        votes = [];
+        hintsUsed = 0;
 
         setupTurn();
         nav('sc-pass');
@@ -227,14 +706,18 @@
         document.getElementById('btn-done').style.display = 'none';
         document.getElementById('current-player-name').innerText = players[currentPlayerIdx];
         
-        const isImposter = (currentPlayerIdx === imposterIndex);
+        const isImposter = imposterIndexes.includes(currentPlayerIdx);
         const backFace = document.getElementById('the-card-back');
         const roleLabel = document.getElementById('role-type');
         const wordLabel = document.getElementById('secret-word');
         const categoryLabel = document.getElementById('card-category');
 
-        // Always show category
-        categoryLabel.innerText = `Category: ${activeCategory}`;
+        // Show category based on difficulty
+        if (settings.difficulty === 'hard') {
+            categoryLabel.innerText = isImposter ? `Category: ${activeCategory}` : '';
+        } else {
+            categoryLabel.innerText = `Category: ${activeCategory}`;
+        }
 
         if (isImposter) {
             backFace.classList.add('imposter-red');
@@ -251,6 +734,7 @@
         const card = document.getElementById('the-card');
         if(!card.classList.contains('flipped')) {
             card.classList.add('flipped');
+            playSound('flip');
             setTimeout(() => {
                 document.getElementById('btn-done').style.display = 'block';
             }, 500);
@@ -260,29 +744,288 @@
     function nextPlayer() {
         currentPlayerIdx++;
         if (currentPlayerIdx < players.length) {
-            // Reset card state BEFORE setting up new turn
             document.getElementById('the-card').classList.remove('flipped');
             document.getElementById('btn-done').style.display = 'none';
-            // Small delay to ensure card flips back before updating content
             setTimeout(() => {
                 setupTurn();
             }, 100);
         } else {
-            document.getElementById('hunt-info').innerText = `Category: ${activeCategory}\nPlayers, give your clues!`;
-            nav('sc-hunt');
-            prepareReveal();
+            startHuntPhase();
         }
     }
 
-    function prepareReveal() {
-        document.getElementById('final-imposter-name').innerText = players[imposterIndex];
+    function startHuntPhase() {
+        document.getElementById('hunt-info').innerText = `Category: ${activeCategory}\n\nDiscuss and give your clues!`;
+        nav('sc-hunt');
+    }
+
+    function getHint() {
+        if (!settings.hintsEnabled) {
+            alert('Hints are disabled in settings!');
+            return;
+        }
+
+        const maxHints = settings.difficulty === 'easy' ? 3 : settings.difficulty === 'medium' ? 1 : 0;
+        
+        if (hintsUsed >= maxHints) {
+            alert('No more hints available!');
+            return;
+        }
+
+        const hints = [
+            `The word is ${activeWord.length} letters long`,
+            `The word starts with "${activeWord[0]}"`,
+            `Think about common ${activeCategory.toLowerCase()} items`
+        ];
+
+        const hintBox = document.getElementById('hint-box');
+        const hintText = document.getElementById('hint-text');
+        
+        hintText.innerText = hints[hintsUsed];
+        hintBox.style.display = 'block';
+        hintsUsed++;
+        
+        playSound('success');
+    }
+
+    function setupVoting() {
+        votes = [];
+        currentVoterIdx = 0;
+        votedPlayers = []; // Reset voted players
+        
+        // Setup voter selection grid
+        const voterGrid = document.getElementById('voter-grid');
+        voterGrid.innerHTML = '';
+        
+        players.forEach((player, idx) => {
+            const btn = document.createElement('div');
+            btn.className = 'player-vote-btn';
+            btn.innerText = player;
+            btn.onclick = () => selectVoter(idx, player);
+            voterGrid.appendChild(btn);
+        });
+
+        // Update vote counter
+        document.getElementById('vote-count').innerText = '0';
+        document.getElementById('total-voters').innerText = players.length;
+
+        // Reset voting steps
+        showVoteStep(1);
+    }
+
+    function refreshVoterGrid() {
+        const voterGrid = document.getElementById('voter-grid');
+        voterGrid.innerHTML = '';
+        
+        players.forEach((player, idx) => {
+            const btn = document.createElement('div');
+            btn.className = 'player-vote-btn';
+            
+            // Mark as voted if already voted
+            if (votedPlayers.includes(idx)) {
+                btn.classList.add('voted');
+                btn.innerText = player + ' ✓';
+            } else {
+                btn.innerText = player;
+                btn.onclick = () => selectVoter(idx, player);
+            }
+            
+            voterGrid.appendChild(btn);
+        });
+    }
+
+    function selectVoter(idx, name) {
+        // Check if this player has already voted
+        if (votedPlayers.includes(idx)) {
+            alert('This player has already voted!');
+            return;
+        }
+        
+        currentVoter = idx;
+        
+        // Highlight selection
+        document.querySelectorAll('#voter-grid .player-vote-btn').forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        event.target.classList.add('selected');
+        
+        playSound('flip');
+        
+        // Move to suspect selection
+        setTimeout(() => {
+            document.getElementById('voter-name-display').querySelector('span').innerText = name;
+            setupSuspectGrid();
+            showVoteStep(2);
+        }, 300);
+    }
+
+    function setupSuspectGrid() {
+        const suspectGrid = document.getElementById('suspect-grid');
+        suspectGrid.innerHTML = '';
+        
+        players.forEach((player, idx) => {
+            if (idx !== currentVoter) { // Can't vote for yourself
+                const btn = document.createElement('div');
+                btn.className = 'player-vote-btn suspect';
+                btn.innerText = player;
+                btn.onclick = () => selectSuspect(idx, btn);
+                suspectGrid.appendChild(btn);
+            }
+        });
+        
+        selectedSuspect = null;
+    }
+
+    function selectSuspect(idx, element) {
+        document.querySelectorAll('#suspect-grid .player-vote-btn').forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        element.classList.add('selected');
+        selectedSuspect = idx;
+        playSound('flip');
+    }
+
+    function submitVote() {
+        if (selectedSuspect === null) {
+            alert('Please select who you think is the imposter!');
+            return;
+        }
+
+        votes.push({
+            voter: currentVoter,
+            suspect: selectedSuspect
+        });
+
+        // Mark this player as having voted
+        votedPlayers.push(currentVoter);
+
+        playSound('success');
+        showVoteStep(3);
+        
+        // Update vote count
+        document.getElementById('vote-count').innerText = votes.length;
+    }
+
+    function nextVoter() {
+        if (votes.length >= players.length) {
+            // All votes collected, show reveal
+            showReveal();
+        } else {
+            // Refresh voter grid to show voted players
+            refreshVoterGrid();
+            // Reset for next voter
+            showVoteStep(1);
+        }
+    }
+
+    function showVoteStep(step) {
+        document.querySelectorAll('.voting-step').forEach(s => s.classList.remove('active'));
+        document.getElementById(`vote-step-${step}`).classList.add('active');
+    }
+
+    function showReveal() {
+        stats.gamesPlayed++;
+        
+        // Count votes
+        const voteCounts = {};
+        players.forEach((_, idx) => voteCounts[idx] = 0);
+        votes.forEach(vote => voteCounts[vote.suspect]++);
+
+        // Find most voted player(s)
+        const maxVotes = Math.max(...Object.values(voteCounts));
+        const mostVoted = Object.keys(voteCounts).filter(idx => voteCounts[idx] === maxVotes).map(Number);
+
+        // Check if imposters were caught
+        const impostersCaught = mostVoted.filter(idx => imposterIndexes.includes(idx)).length;
+        const accuracy = Math.round((impostersCaught / imposterIndexes.length) * 100);
+
+        if (impostersCaught === imposterIndexes.length) {
+            stats.impostersCaught += impostersCaught;
+            document.getElementById('round-result').innerText = '✓';
+            document.getElementById('round-result').style.color = 'var(--success)';
+        } else {
+            document.getElementById('round-result').innerText = '✗';
+            document.getElementById('round-result').style.color = 'var(--danger)';
+        }
+
+        document.getElementById('vote-accuracy').innerText = accuracy + '%';
         document.getElementById('final-word').innerText = activeWord.toUpperCase();
+
+        saveStats();
+
+        // Create reveal animation
+        const revealContainer = document.getElementById('reveal-animation');
+        revealContainer.innerHTML = '';
+
+        // Show all players with their roles
+        players.forEach((player, idx) => {
+            setTimeout(() => {
+                const card = document.createElement('div');
+                const isImposter = imposterIndexes.includes(idx);
+                const wasVoted = mostVoted.includes(idx);
+                
+                card.className = `reveal-card ${isImposter ? 'imposter' : 'innocent'}`;
+                card.innerHTML = `
+                    <div class="reveal-label">${wasVoted ? '🎯 MOST VOTED' : ''}</div>
+                    <div class="reveal-name">${player}</div>
+                    <div style="font-family: 'Orbitron'; font-size: 1.5rem; color: ${isImposter ? 'var(--danger)' : 'var(--success)'};">
+                        ${isImposter ? '🔴 IMPOSTER' : '✓ INNOCENT'}
+                    </div>
+                    <div style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.7;">
+                        Votes received: ${voteCounts[idx]}
+                    </div>
+                `;
+                
+                revealContainer.appendChild(card);
+                playSound(isImposter ? 'alert' : 'flip');
+            }, idx * 800);
+        });
+
+        nav('sc-reveal');
+    }
+
+    function goHome() {
+        if (confirm('Return to main menu? This will end the current game.')) {
+            // Reset game state
+            players = [];
+            currentPlayerIdx = 0;
+            imposterIndexes = [];
+            activeWord = "";
+            activeCategory = "";
+            votes = [];
+            votedPlayers = [];
+            currentVoter = null;
+            selectedSuspect = null;
+            hintsUsed = 0;
+            
+            // Reset card
+            document.getElementById('the-card').classList.remove('flipped');
+            document.getElementById('btn-done').style.display = 'none';
+            
+            // Hide hint box
+            document.getElementById('hint-box').style.display = 'none';
+            
+            nav('sc-home');
+        }
     }
 
     function nav(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
+        
+        if (id === 'sc-vote') {
+            setupVoting();
+        }
+        
+        if (id === 'sc-hunt') {
+            document.getElementById('hint-box').style.display = 'none';
+        }
     }
+
+    // Initialize on load
+    window.onload = function() {
+        loadStats();
+    };
 </script>
 
 </body>
